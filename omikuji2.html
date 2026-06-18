@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>恋御籤</title>
+  <style>
+    body {
+      background-color: #fdf5e6;
+      font-family: "Hiragino Mincho ProN", "MS PMincho", serif;
+      text-align: center;
+      padding-top: 50px;
+      color: #333;
+    }
+
+    .omikuji-box {
+      background-color: #fff8dc;
+      padding: 30px;
+      border: 5px double #b22222;
+      border-radius: 10px;
+      width: 320px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #b22222;
+      border-bottom: 2px solid #b22222;
+      padding-bottom: 10px;
+    }
+
+    #omikuji-result {
+      min-height: 120px;
+      margin-top: 20px;
+    }
+
+    .result-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+      margin: 10px auto 0 auto;
+    }
+
+    button {
+      background-color: #b22222;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #8b0000;
+    }
+
+    .fortune {
+      font-size: 2em;
+      font-weight: bold;
+      color: #d4af37;
+      margin: 0;
+    }
+
+    .message {
+      font-size: 1em;
+      color: #333;
+      margin-top: 10px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="omikuji-box">
+    <h2>恋御籤</h2>
+    <div id="omikuji-result">
+      <p>あなたの運勢を占います</p>
+    </div>
+
+    <button id="draw-button" onclick="drawOmikuji()">おみくじを引く</button>
+  </div>
+
+  <script>
+    const fortunes = ["大吉", "吉", "中吉", "末吉", "凶", "大凶"];
+
+    const loveMessages = [
+      "誠意を持って接すれば、思いは通じます。",
+      "新しい出会いがすぐそばにあります。",
+      "焦らず、自分磨きに専念しましょう。",
+      "今は静かに待つのが吉。無理な行動は控えて。",
+      "相手の気持ちを尊重することを忘れずに。",
+      "過去の執着を捨てると、新しい運気が入ってきます。"
+    ];
+
+    function disableButton(btn) {
+      btn.disabled = true;
+      btn.textContent = "おみくじは引かれました";
+      btn.style.cursor = "not-allowed";
+      btn.style.opacity = "0.7";
+    }
+
+    // 画像辞書: 運勢ごとに表示する画像の候補を配列で持つ
+    const imagesDict = {
+      "大吉": ["https://picsum.photos/seed/daikichi/600/300"],
+      "吉": ["https://picsum.photos/seed/kichi/600/300"],
+      "中吉": ["https://picsum.photos/seed/chukichi/600/300"],
+      "末吉": ["https://picsum.photos/seed/suekichi/600/300"],
+      "凶": ["https://picsum.photos/seed/kyou/600/300"],
+      "大凶": ["https://picsum.photos/seed/daikyou/600/300"]
+    };
+
+    function renderResult(fortune, message, imageUrl) {
+      const resultDiv = document.getElementById("omikuji-result");
+      const imageHtml = imageUrl ? `<img class="result-image" src="${imageUrl}" alt="fortune image">` : "";
+      resultDiv.innerHTML = `
+        ${imageHtml}
+        <p class="fortune">${fortune}</p>
+        <p class="message">${message}</p>
+      `;
+    }
+
+    function drawOmikuji() {
+      const drawButton = document.getElementById("draw-button");
+      if (drawButton.disabled) return; // 二重実行防止
+
+      const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+      const message = loveMessages[Math.floor(Math.random() * loveMessages.length)];
+
+      // 運勢に対応する画像を辞書から選ぶ
+      let imageUrl = null;
+      try {
+        const candidates = imagesDict[fortune] || [];
+        if (candidates.length > 0) {
+          imageUrl = candidates[Math.floor(Math.random() * candidates.length)];
+        }
+      } catch (e) {
+        imageUrl = null;
+      }
+
+      renderResult(fortune, message, imageUrl);
+      disableButton(drawButton);
+
+      // localStorage に保存して、リロードしても再度引けないようにする
+      try {
+        localStorage.setItem("omikuji_drawn", "true");
+        localStorage.setItem("omikuji_fortune", fortune);
+        localStorage.setItem("omikuji_message", message);
+        if (imageUrl) localStorage.setItem("omikuji_image", imageUrl);
+      } catch (e) {
+        // localStorage が使えない環境では無視
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const drawButton = document.getElementById("draw-button");
+      try {
+        const drawn = localStorage.getItem("omikuji_drawn");
+        if (drawn) {
+          const fortune = localStorage.getItem("omikuji_fortune") || "—";
+          const message = localStorage.getItem("omikuji_message") || "";
+          const savedImage = localStorage.getItem("omikuji_image");
+          renderResult(fortune, message, savedImage);
+          disableButton(drawButton);
+        }
+      } catch (e) {
+        // localStorage が使えない場合は何もしない
+      }
+    });
+  </script>
+</body>
+</html>
