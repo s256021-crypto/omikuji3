@@ -105,6 +105,8 @@
       ]
     };
 
+    const DRAW_KEY = "omikujiDrawn";
+
     function setButtonDisabled(button) {
       button.disabled = true;
       button.textContent = "おみくじは引かれました";
@@ -114,7 +116,7 @@
 
     function renderResult(fortune, message, imageUrl) {
       const resultDiv = document.getElementById("omikuji-result");
-      const imageHtml = imageUrl ? `<img class="result-image" src="${imageUrl}" alt="fortune image">` : "";
+      const imageHtml = imageUrl ? `<img class="result-image" src="${imageUrl}" alt="おみくじ画像">` : "";
       resultDiv.innerHTML = `
         ${imageHtml}
         <p class="fortune">${fortune}</p>
@@ -125,7 +127,17 @@
     function chooseImage(fortune) {
       const candidates = imagesDict[fortune] || [];
       if (!candidates.length) return null;
-      return candidates[Math.floor(Math.random() * candidates.length)];
+      return `./${candidates[Math.floor(Math.random() * candidates.length)]}`;
+    }
+
+    function saveResult(fortune, message, imageUrl) {
+      const data = { fortune, message, imageUrl };
+      localStorage.setItem(DRAW_KEY, JSON.stringify(data));
+    }
+
+    function loadSavedResult() {
+      const saved = localStorage.getItem(DRAW_KEY);
+      return saved ? JSON.parse(saved) : null;
     }
 
     function drawOmikuji() {
@@ -137,9 +149,20 @@
       const imageUrl = chooseImage(fortune);
 
       renderResult(fortune, message, imageUrl);
+      saveResult(fortune, message, imageUrl);
       setButtonDisabled(button);
     }
 
+    function init() {
+      const saved = loadSavedResult();
+      const button = document.getElementById("draw-button");
+      if (saved) {
+        renderResult(saved.fortune, saved.message, saved.imageUrl);
+        setButtonDisabled(button);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
     document.getElementById("draw-button").addEventListener("click", drawOmikuji);
   </script>
 </body>
