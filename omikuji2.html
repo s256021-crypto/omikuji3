@@ -12,7 +12,6 @@
       padding-top: 50px;
       color: #333;
     }
-
     .omikuji-box {
       background-color: #fff8dc;
       padding: 30px;
@@ -22,18 +21,15 @@
       margin: auto;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
-
     h2 {
       color: #b22222;
       border-bottom: 2px solid #b22222;
       padding-bottom: 10px;
     }
-
     #omikuji-result {
-      min-height: 120px;
+      min-height: 180px;
       margin-top: 20px;
     }
-
     .result-image {
       max-width: 100%;
       height: auto;
@@ -41,7 +37,6 @@
       display: block;
       margin: 10px auto 0 auto;
     }
-
     button {
       background-color: #b22222;
       color: white;
@@ -52,18 +47,15 @@
       border-radius: 5px;
       margin-top: 10px;
     }
-
     button:hover {
       background-color: #8b0000;
     }
-
     .fortune {
       font-size: 2em;
       font-weight: bold;
       color: #d4af37;
       margin: 0;
     }
-
     .message {
       font-size: 1em;
       color: #333;
@@ -78,13 +70,11 @@
     <div id="omikuji-result">
       <p>あなたの運勢を占います</p>
     </div>
-
-    <button id="draw-button" onclick="drawOmikuji()">おみくじを引く</button>
+    <button id="draw-button" type="button">おみくじを引く</button>
   </div>
 
   <script>
     const fortunes = ["大吉", "吉", "中吉", "末吉", "凶", "大凶"];
-
     const loveMessages = [
       "誠意を持って接すれば、思いは通じます。",
       "新しい出会いがすぐそばにあります。",
@@ -94,22 +84,33 @@
       "過去の執着を捨てると、新しい運気が入ってきます。"
     ];
 
-    function disableButton(btn) {
-      btn.disabled = true;
-      btn.textContent = "おみくじは引かれました";
-      btn.style.cursor = "not-allowed";
-      btn.style.opacity = "0.7";
-    }
-
-    // 画像辞書: 運勢ごとに表示する画像の候補を配列で持つ
     const imagesDict = {
-      "大吉": ["https://picsum.photos/seed/daikichi/600/300"],
-      "吉": ["https://picsum.photos/seed/kichi/600/300"],
-      "中吉": ["https://picsum.photos/seed/chukichi/600/300"],
-      "末吉": ["https://picsum.photos/seed/suekichi/600/300"],
-      "凶": ["https://picsum.photos/seed/kyou/600/300"],
-      "大凶": ["https://picsum.photos/seed/daikyou/600/300"]
+      "大吉": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Crect width='600' height='300' fill='%23f8e7d1'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='52' fill='%23b22222' font-family='serif'%3E大吉%3C/text%3E%3C/svg%3E"
+      ],
+      "吉": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Crect width='600' height='300' fill='%23fff4e6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='52' fill='%23006666' font-family='serif'%3E吉%3C/text%3E%3C/svg%3E"
+      ],
+      "中吉": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Crect width='600' height='300' fill='%23eaf7ff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='52' fill='%23004488' font-family='serif'%3E中吉%3C/text%3E%3C/svg%3E"
+      ],
+      "末吉": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Crect width='600' height='300' fill='%23f8f0e0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='52' fill='%23884422' font-family='serif'%3E末吉%3C/text%3E%3C/svg%3E"
+      ],
+      "凶": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Crect width='600' height='300' fill='%23fbeaea'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='52' fill='%23aa0000' font-family='serif'%3E凶%3C/text%3E%3C/svg%3E"
+      ],
+      "大凶": [
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Crect width='600' height='300' fill='%23f7dcdc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='52' fill='%23880000' font-family='serif'%3E大凶%3C/text%3E%3C/svg%3E"
+      ]
     };
+
+    function setButtonDisabled(button) {
+      button.disabled = true;
+      button.textContent = "おみくじは引かれました";
+      button.style.cursor = "not-allowed";
+      button.style.opacity = "0.7";
+    }
 
     function renderResult(fortune, message, imageUrl) {
       const resultDiv = document.getElementById("omikuji-result");
@@ -121,53 +122,25 @@
       `;
     }
 
+    function chooseImage(fortune) {
+      const candidates = imagesDict[fortune] || [];
+      if (!candidates.length) return null;
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
     function drawOmikuji() {
-      const drawButton = document.getElementById("draw-button");
-      if (drawButton.disabled) return; // 二重実行防止
+      const button = document.getElementById("draw-button");
+      if (button.disabled) return;
 
       const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
       const message = loveMessages[Math.floor(Math.random() * loveMessages.length)];
-
-      // 運勢に対応する画像を辞書から選ぶ
-      let imageUrl = null;
-      try {
-        const candidates = imagesDict[fortune] || [];
-        if (candidates.length > 0) {
-          imageUrl = candidates[Math.floor(Math.random() * candidates.length)];
-        }
-      } catch (e) {
-        imageUrl = null;
-      }
+      const imageUrl = chooseImage(fortune);
 
       renderResult(fortune, message, imageUrl);
-      disableButton(drawButton);
-
-      // localStorage に保存して、リロードしても再度引けないようにする
-      try {
-        localStorage.setItem("omikuji_drawn", "true");
-        localStorage.setItem("omikuji_fortune", fortune);
-        localStorage.setItem("omikuji_message", message);
-        if (imageUrl) localStorage.setItem("omikuji_image", imageUrl);
-      } catch (e) {
-        // localStorage が使えない環境では無視
-      }
+      setButtonDisabled(button);
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const drawButton = document.getElementById("draw-button");
-      try {
-        const drawn = localStorage.getItem("omikuji_drawn");
-        if (drawn) {
-          const fortune = localStorage.getItem("omikuji_fortune") || "—";
-          const message = localStorage.getItem("omikuji_message") || "";
-          const savedImage = localStorage.getItem("omikuji_image");
-          renderResult(fortune, message, savedImage);
-          disableButton(drawButton);
-        }
-      } catch (e) {
-        // localStorage が使えない場合は何もしない
-      }
-    });
+    document.getElementById("draw-button").addEventListener("click", drawOmikuji);
   </script>
 </body>
 </html>
