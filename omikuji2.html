@@ -114,7 +114,7 @@
 
     function renderResult(fortune, message, imageUrl) {
       const resultDiv = document.getElementById("omikuji-result");
-      const imageHtml = imageUrl ? `<img class="result-image" src="${imageUrl}" alt="おみくじ画像">` : "";
+      const imageHtml = imageUrl ? `<img class="result-image" src="${imageUrl}" alt="fortune image">` : "";
       resultDiv.innerHTML = `
         ${imageHtml}
         <p class="fortune">${fortune}</p>
